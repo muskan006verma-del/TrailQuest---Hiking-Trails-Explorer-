@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>TrailQuest - Hiking Trails Explorer</title>
+ <style>
+ /* ---------- COLORS ---------- */
+ :root {
+ --bg: #f3f7f2;
+ --ink: #173b28;
+ --card: #ffffff;
+ --soft: #f0f6ef;
+ --mut: #718078;
+ --acc: #2f7045;
+ --dark: #123b27;
+ --gold: #eeb75b;
+ --line: #e5ebe5;
+ }
+ /* ---------- RESET ---------- */
+ * {
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+ font-family: Arial, Helvetica, sans-serif;
+ }
+ body {
+ background: var(--bg);
+ color: var(--ink);
+ }
+ /* ---------- NAVBAR ---------- */
+ nav {
+ min-height: 70px;
+ background: var(--dark);
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ flex-wrap: wrap;
+ gap: 10px;
+ padding: 10px 6%;
+ color: #fff;
+ position: sticky;
+ top: 0;
+ z-index: 20;
+ }
+ .logo {
+ font-size: 24px;
+ font-weight: bold;
+ cursor: pointer;
+ }
+ .logo span {
+ color: #b8df91;
+ }
+ nav ul {
+ list-style: none;
+ display: flex;
+ gap: 22px;
+ }
+ nav a {
+ color: #fff;
+ text-decoration: none;
+ font-size: 15px;
+ cursor: pointer;
+ padding-bottom: 4px;
+ border-bottom: 2px solid transparent;
+ }
+ nav a.on {
+ border-color: var(--gold);
+ }
+ .btn {
+ background: var(--gold);
+ color: #173b28 !important;
+ padding: 10px 18px;
+ border-radius: 25px;
+ font-weight: bold;
+ font-size: 14px;
+ border: none;
+ cursor: pointer;
+ text-decoration: none;
+ }
+ /* ---------- PAGES ---------- */
+ .page {
+ display: none;
+ }
+ .page.show {
+ display: block;
+ }
+ /* ---------- HERO ---------- */
+ .hero {
+ padding: 80px 6% 90px;
+ color: #fff;
+ background:
+ linear-gradient(rgba(14, 58, 37, 0.78), rgba(18, 76, 45, 0.88)),
+ linear-gradient(135deg, #356b48, #8db17a);
+ }
+ .hero .tag {
+ color: #cce6b6;
+ font-weight: bold;
+ letter-spacing: 3px;
+ font-size: 13px;
+ margin-bottom: 18px;
+ }
+ .hero h1 {
+ font-size: clamp(36px, 6vw, 62px);
+ line-height: 1.05;
+ margin-bottom: 20px;
+ }
+ .hero h1 span {
+ color: #c9e8a9;
+ }
+ .hero p {
+ font-size: 18px;
+ max-width: 620px;
+ line-height: 1.7;
+ color: #e5efe7;
+ margin-bottom: 28px;
+ }
+ /* ---------- STATS ---------- */
+ .stats {
+ width: 88%;
+ max-width: 1100px;
+ margin: -40px auto 50px;
+ position: relative;
+ background: var(--card);
+ border-radius: 18px;
+ padding: 22px;
+ display: grid;
+ grid-template-columns: repeat(4, 1fr);
+ box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+ }
+ .stat {
+ text-align: center;
+ }
+ .stat h2 {
+ color: var(--acc);
+ font-size: 28px;
+ }
+ .stat p {
+ color: var(--mut);
+ font-size: 12px;
+ letter-spacing: 1px;
+ }
+ /* ---------- SECTION LAYOUT ---------- */
+ .wrap {
+ width: 88%;
+ max-width: 1100px;
+ margin: 0 auto;
+ padding: 40px 0 60px;
+ }
+ .head {
+ display: flex;
+ justify-content: space-between;
+ align-items: end;
+ flex-wrap: wrap;
+ gap: 10px;
+ margin-bottom: 26px;
+ }
+ .head small {
+ color: var(--acc);
+ font-weight: bold;
+ letter-spacing: 2px;
+ }
+ .head h2 {
+ font-size: 36px;
+ margin-top: 6px;
+ }
+ .head h2 span {
+ color: var(--acc);
+ }
+ .head p {
+ color: var(--mut);
+ margin-top: 6px;
+ }
+ .count {
+ background: var(--soft);
+ padding: 10px 16px;
+ border-radius: 25px;
+ color: var(--acc);
+ font-weight: bold;
+ }
+ /* ---------- TRAIL CARDS ---------- */
+ .grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+ gap: 24px;
+ }
+ .tc {
+ background: var(--card);
+ border-radius: 20px;
+ overflow: hidden;
+ box-shadow: 0 10px 30px rgba(27, 55, 35, 0.12);
+ transition: 0.3s;
+ }
+ .tc:hover {
+ transform: translateY(-6px);
+ }
+ .ti {
+ height: 180px;
+ position: relative;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 70px;
+ }
+ .forest { background: linear-gradient(135deg, #8bbd75, #23553a); }
+ .sunset { background: linear-gradient(135deg, #e7a260, #4d6e55); }
+ .mountain { background: linear-gradient(135deg, #9aaf92, #294d3b); }
+ .lake { background: linear-gradient(135deg, #77b6a0, #326b67); }
+ .cliff { background: linear-gradient(135deg, #728b76, #253f35); }
+ .dif {
+ position: absolute;
+ top: 14px;
+ right: 14px;
+ padding: 6px 12px;
+ border-radius: 20px;
+ color: #fff;
+ font-size: 12px;
+ font-weight: bold;
+ background: rgba(20, 50, 32, 0.75);
+ }
+ .cc {
+ padding: 20px;
+ }
+ .loc {
+ color: var(--acc);
+ font-size: 13px;
+ font-weight: bold;
+ }
+ .cc h3 {
+ font-size: 22px;
+ margin: 6px 0;
+ }
+ .desc {
+ color: var(--mut);
+ font-size: 14px;
+ line-height: 1.6;
+ min-height: 60px;
+ }
+ .det {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 8px;
+ margin: 16px 0;
+ }
+ .d {
+ background: var(--soft);
+ padding: 10px 4px;
+ border-radius: 10px;
+ text-align: center;
+ }
+ .d strong {
+ display: block;
+ font-size: 12px;
+ }
+ .d small {
+ color: var(--mut);
+ font-size: 10px;
+ }
+ .bot {
+ border-top: 1px solid var(--line);
+ padding-top: 14px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ }
+ .bt {
+ font-size: 11px;
+ color: var(--mut);
+ }
+ .bt strong {
+ display: block;
+ color: var(--acc);
+ font-size: 13px;
+ }
+ .vb {
+ background: var(--soft);
+ color: var(--acc);
+ padding: 9px 13px;
+ border-radius: 20px;
+ border: none;
+ font-size: 12px;
+ font-weight: bold;
+ cursor: pointer;
+ }
+ /* ---------- SEARCH BOX ---------- */
+ .sb {
+ background: var(--card);
+ padding: 10px;
+ border-radius: 15px;
+ display: flex;
+ gap: 6px;
+ flex-wrap: wrap;
+ box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+ margin-bottom: 30px;
+ }
+ .sb input {
+ flex: 1;
+ min-width: 180px;
+ border: none;
+ outline: none;
+ padding: 14px;
+ font-size: 15px;
+ background: transparent;
+ color: var(--ink);
+ }
+ .sb select {
+ border: none;
+ padding: 14px;
+ background: var(--soft);
+ color: var(--ink);
+ border-radius: 10px;
+ }
+ .empty {
+ background: var(--card);
+ padding: 60px;
+ text-align: center;
+ border-radius: 20px;
+ }
+ /* ---------- ABOUT ---------- */
+ .about {
+ background: var(--card);
+ padding: 40px;
+ border-radius: 20px;
+ line-height: 1.8;
+ color: var(--mut);
+ }
+ .about h2 {
+ color: var(--ink);
+ margin-bottom: 12px;
+ }
+ .about h3 {
+ color: var(--ink);
+ margin: 22px 0 6px;
+ }
+ .about ul {
+ margin-left: 22px;
+ }
+ /* ---------- FOOTER ---------- */
+ footer {
+ background: var(--dark);
+ color: #fff;
+ text-align: center;
+ padding: 30px;
+ }
+ footer p {
+ color: #c4d8c9;
+ font-size: 13px;
+ margin-top: 6px;
+ }
+ /* ---------- POPUP (VIEW DETAILS) ---------- */
+ #modal {
+ display: none;
+ position: fixed;
+ inset: 0;
+ background: rgba(0, 0, 0, 0.6);
+ z-index: 50;
+ align-items: center;
+ justify-content: center;
+ padding: 20px;
+ }
+ #modal.show {
+ display: flex;
+ }
+ .mb {
+ background: var(--card);
+ border-radius: 20px;
+ max-width: 460px;
+ width: 100%;
+ overflow: hidden;
+ }
+ .mb .cc {
+ padding: 24px;
+ }
+ /* ---------- MOBILE ---------- */
+ @media (max-width: 700px) {
+ nav ul {
+ gap: 14px;
+ }
+ .stats {
+ grid-template-columns: repeat(2, 1fr);
+ gap: 16px;
+ }
+ }
+ </style>
+</head>
+<body>
+ <!-- NAVIGATION -->
+ <nav>
+ <div class="logo" onclick="go('home')">🥾 Trail<span>Quest</span></div>
+ <ul>
+ <li><a data-p="home" onclick="go('home')">Home</a></li>
+ <li><a data-p="explore" onclick="go('explore')">Explore Trails</a></li>
+ <li><a data-p="about" onclick="go('about')">About</a></li>
+ </ul>
+ <a class="btn" onclick="go('explore')">Explore →</a>
+ </nav>
+
+ <!-- ================= HOME PAGE ================= -->
+ <section class="page" id="home">
+ <div class="hero">
+ <div class="tag">EXPLORE • DISCOVER • HIKE</div>
+ <h1>
+ Escape the ordinary.<br>
+ <span>Find your trail.</span>
+ </h1>
+ <p>
+ Discover beautiful hiking trails, compare difficulty levels
+ and plan your next mountain adventure.
+ </p>
+ <a class="btn" onclick="go('explore')">Explore Trails →</a>
+ </div>
+ <div class="stats">
+ <div class="stat"><h2>06</h2><p>TRAILS</p></div>
+ <div class="stat"><h2>03</h2><p>DIFFICULTIES</p></div>
+ <div class="stat"><h2>3,800m</h2><p>HIGHEST PEAK</p></div>
+ <div class="stat"><h2>100%</h2><p>LOCAL DATA</p></div>
+ </div>
+ <div class="wrap" style="padding-top: 0;">
+ <div class="head">
+ <div>
+ <small>FEATURED</small>
+ <h2>Popular <span>trails.</span></h2>
+ <p>A taste of what's waiting for you.</p>
+ </div>
+ <a class="btn" onclick="go('explore')">View all →</a>
+ </div>
+ <div class="grid" id="featured"></div>
+ </div>
+ </section>
+
+ <!-- ================= EXPLORE TRAILS PAGE ================= -->
+ <section class="page" id="explore">
+ <div class="wrap">
+ <div class="head">
+ <div>
+ <small>SEARCH &amp; FILTER</small>
+ <h2>Explore <span>trails.</span></h2>
+ <p>Search by trail name or location, and filter by difficulty.</p>
+ </div>
+ <div class="count" id="ecount"></div>
+ </div>
+ <div class="sb">
+ <input id="q" placeholder="🔎 Search trail or location..." oninput="filt()">
+ <select id="df" onchange="filt()">
+ <option>All</option>
+ <option>Easy</option>
+ <option>Moderate</option>
+ <option>Hard</option>
+ </select>
+ <button class="btn" onclick="filt()">Explore Trails →</button>
+ </div>
+ <div id="res"></div>
+ </div>
+ </section>
+
+ <!-- ================= ABOUT PAGE ================= -->
+ <section class="page" id="about">
+ <div class="wrap">
+ <div class="about">
+ <h2>🌲 About TrailQuest</h2>
+ <p>
+ TrailQuest is a Hiking Trails Explorer created as a Python
+ mini project to help users discover hiking destinations,
+ compare difficulty levels and explore important trail
+ information through a simple and attractive website.
+ </p>
+ <h3>Features</h3>
+ <ul>
+ <li>Browse a directory of hiking trails</li>
+ <li>Search by trail name or location</li>
+ <li>Filter trails by Easy, Moderate or Hard</li>
+ <li>View distance, duration, elevation and best time to visit</li>
+ </ul>
+ <h3>Technology</h3>
+ <p>
+ Python Flask backend, HTML and CSS frontend, built in VS Code.
+ This preview runs fully in the browser so you can try how
+ the website works.
+ </p>
+ </div>
+ </div>
+ </section>
+
+ <!-- FOOTER -->
+ <footer>
+ <h3>🥾 TrailQuest</h3>
+ <p>Explore • Discover • Hike</p>
+ </footer>
+
+ <!-- POPUP FOR VIEW DETAILS -->
+ <div id="modal" onclick="if (event.target === this) this.classList.remove('show')">
+ <div class="mb" id="mbody"></div>
+ </div>
+
+ <script>
+ /* ---------- TRAIL DATA ---------- */
+ const T = [
+ {
+ n: "Valley of Flowers Trek", l: "Uttarakhand", d: "Moderate",
+ c: "forest", e: "🌸",
+ t: "A scenic trail through meadows full of alpine flowers and glacial streams.",
+ di: "17 km", du: "2 Days", el: "3,658 m", b: "Jul – Sep"
+ },
+ {
+ n: "Triund Hill Trek", l: "Himachal Pradesh", d: "Easy",
+ c: "sunset", e: "🌄",
+ t: "A popular short trek with sweeping views of the Dhauladhar range.",
+ di: "9 km", du: "5 Hrs", el: "2,850 m", b: "Mar – Jun"
+ },
+ {
+ n: "Kedarkantha Trek", l: "Uttarakhand", d: "Moderate",
+ c: "mountain", e: "🏔️",
+ t: "A classic winter summit trek through pine forests and snowy ridges.",
+ di: "20 km", du: "4 Days", el: "3,800 m", b: "Dec – Apr"
+ },
+ {
+ n: "Nag Tibba Trail", l: "Uttarakhand", d: "Easy",
+ c: "lake", e: "🏞️",
+ t: "A beginner-friendly weekend trail with forest camps and Himalayan views.",
+ di: "14 km", du: "2 Days", el: "3,022 m", b: "Oct – Mar"
+ },
+ {
+ n: "Rajmachi Fort Trek", l: "Maharashtra", d: "Easy",
+ c: "forest", e: "🏰",
+ t: "A monsoon favourite with waterfalls, greenery and a historic fort.",
+ di: "15 km", du: "7 Hrs", el: "826 m", b: "Jun – Sep"
+ },
+ {
+ n: "Harishchandragad Trek", l: "Maharashtra", d: "Hard",
+ c: "cliff", e: "⛰️",
+ t: "A challenging climb to the Konkan Kada cliff with dramatic views.",
+ di: "12 km", du: "2 Days", el: "1,646 m", b: "Oct – Feb"
+ }
+ ];
+
+ /* ---------- ONE TRAIL CARD ---------- */
+ const card = (x, i) => `
+ <div class="tc">
+ <div class="ti ${x.c}">
+ ${x.e}
+ <div class="dif">${x.d}</div>
+ </div>
+ <div class="cc">
+ <div class="loc">📍 ${x.l}</div>
+ <h3>${x.n}</h3>
+ <p class="desc">${x.t}</p>
+ <div class="det">
+ <div class="d"><strong>📏 ${x.di}</strong><small>Distance</small></div>
+ <div class="d"><strong>⏱ ${x.du}</strong><small>Duration</small></div>
+ <div class="d"><strong>⬆ ${x.el}</strong><small>Elevation</small></div>
+ </div>
+ <div class="bot">
+ <div class="bt">Best Time<strong>${x.b}</strong></div>
+ <button class="vb" onclick="show(${i})">View Details →</button>
+ </div>
+ </div>
+ </div>`;
+
+ /* ---------- LIST OF CARDS ---------- */
+ const list = (arr) => arr.map(x => card(x, T.indexOf(x))).join("");
+
+ /* ---------- VIEW DETAILS POPUP ---------- */
+ function show(i) {
+ const x = T[i];
+ document.getElementById("mbody").innerHTML = `
+ <div class="ti ${x.c}">
+ ${x.e}
+ <div class="dif">${x.d}</div>
+ </div>
+ <div class="cc">
+ <div class="loc">📍 ${x.l}</div>
+ <h3>${x.n}</h3>
+ <p class="desc">${x.t}</p>
+ <div class="det">
+ <div class="d"><strong>${x.di}</strong><small>Distance</small></div>
+ <div class="d"><strong>${x.du}</strong><small>Duration</small></div>
+ <div class="d"><strong>${x.el}</strong><small>Elevation</small></div>
+ </div>
+ <p class="bt" style="margin-bottom: 14px;">
+ Best time to visit: <strong style="display: inline;">${x.b}</strong>
+ </p>
+ <button class="btn"
+ onclick="document.getElementById('modal').classList.remove('show')">
+ Close
+ </button>
+ </div>`;
+ document.getElementById("modal").classList.add("show");
+ }
+
+ /* ---------- SEARCH AND FILTER ---------- */
+ function filt() {
+ const q = document.getElementById("q").value.toLowerCase();
+ const d = document.getElementById("df").value;
+ const r = T.filter(x =>
+ (d === "All" || x.d === d) &&
+ (x.n + x.l).toLowerCase().includes(q)
+ );
+ document.getElementById("ecount").textContent = r.length + " Trails Found";
+ document.getElementById("res").innerHTML = r.length
+ ? `<div class="grid">${list(r)}</div>`
+ : `<div class="empty">
+ <div style="font-size: 50px;">🧭</div>
+ <h3>No Trails Found</h3>
+ <p style="color: var(--mut);">Try another trail name or difficulty.</p>
+ </div>`;
+ }
+
+ /* ---------- PAGE SWITCHING ---------- */
+ function go(p) {
+ document.querySelectorAll(".page").forEach(s =>
+ s.classList.toggle("show", s.id === p)
+ );
+ document.querySelectorAll("nav a[data-p]").forEach(a =>
+ a.classList.toggle("on", a.dataset.p === p)
+ );
+ scrollTo(0, 0);
+ }
+
+ /* ---------- START ---------- */
+ document.getElementById("featured").innerHTML = list(T.slice(0, 3));
+ filt();
+ go("home");
+ </script>
+</body>
+</html>
